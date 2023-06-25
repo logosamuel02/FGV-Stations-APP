@@ -6,3 +6,4 @@ geopy
 streamlit_folium
 networkx
 geopy.geocoders
+Nominatim
