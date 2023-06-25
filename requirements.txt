@@ -2,7 +2,6 @@ streamlit
 pandas
 folium
 openrouteservice
-geopy
 streamlit_folium
 networkx
 geopy.geocoders
