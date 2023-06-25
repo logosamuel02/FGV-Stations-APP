@@ -6,3 +6,4 @@ Python libraries:
   geopy
   streamlit_folium
   networkx
+  geopy.geocoders
