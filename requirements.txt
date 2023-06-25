@@ -4,4 +4,4 @@ folium
 openrouteservice
 streamlit_folium
 networkx
-geopy.geocoders
+geopy
