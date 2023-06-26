@@ -73,7 +73,7 @@ nombres.sort()
 st.title(":station: FGV Stations")
 st.markdown("##")
 
-st.set_page_config(page_title='Mi Aplicación', page_icon='path/a/tu/icono.png', layout='wide')
+st.set_page_config(page_title='Mi Aplicación', page_icon='metro.png', layout='wide')
 
 # Texto indicativo y selección del usuario
 col1, col2 = st.columns([1, 1])
