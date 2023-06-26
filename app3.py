@@ -6,7 +6,6 @@ Created on Sun Jun 25 12:59:16 2023
 """
 
 import pandas as pd
-import plotly.express as px
 import streamlit as st
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
