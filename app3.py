@@ -14,7 +14,7 @@ import openrouteservice
 from streamlit_folium import st_folium
 import networkx as nx
 
-st.set_page_config(page_title='Mi Aplicación', page_icon='metro.png', layout='wide')
+st.set_page_config(page_title='FGV Stations', page_icon='metro.png', layout='wide')
 
 def obtener_coordenadas_direccion(direccion):
     geolocator = Nominatim(user_agent="my_app")
