@@ -6,6 +6,7 @@ Created on Sun Jun 25 12:59:16 2023
 """
 
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
@@ -85,7 +86,7 @@ with col2:
 
 # Mostrar datos filtrados
 with col1:
-    title = st.text_input('Write your location:', "Conde de Altea 39, Valencia, España")
+    title = st.text_input('Write your location:', "Estadi de Mestalla, Valencia, España")
     
 
     
@@ -106,7 +107,6 @@ if coordenadas:
     if option != "ALL":
         lista = []
         for index,row in datos.iterrows():
-            print(row["Línia / Línea"])
             if str(option) in row["Línia / Línea"].split(","):
                 lista.append(tuple(row))    
         df = pd.DataFrame(lista, columns = list(datos.columns))
@@ -122,7 +122,7 @@ if coordenadas:
     
     coordenadas = [x for x in reversed(coordenadas)]
     m = create_map(coordenadas,zoom=13)
-    m = add_marker(m, coordenadas, color="white", text="Your Location")
+    m = add_marker(m, coordenadas, color="blue", text="Your Location")
     df["marker"] = df["Nom / Nombre"]
     dic_colores = {}
     colores = ["beige","pink","red","cadetblue","darkgreen","purple","orange","darkblue","gray","green"]
@@ -144,7 +144,7 @@ if coordenadas:
         m = add_marker(m, c, color=df["marker"][i], text=texto) 
     with col2:
         st.write('Map of the nearest stations')
-        st_data = st_folium(m, height=215)
+        st_data = st_folium(m, height=212)
     
     mas_cercanas=[]
     for index,row in df.head(5).iterrows():
@@ -168,7 +168,7 @@ if coordenadas:
             {'ini':'Torrent Avinguda','fin':'Marítim','linea':'7'},{'ini':'Marítim','fin':'Neptú','linea':'8'},
             {'ini':'Riba-roja de Túria','fin':'Alboraia Peris Aragó','linea':'9'},{'ini':'Alacant','fin':'Natzaret','linea':'10'}]    
      
-    tuplas=[('Ll. Llarga - Terramelar','À Punt'),('Les Carolines - Fira','Vicent Andrés Estellés')]
+    tuplas=[('Ll. Llarga - Terramelar','À Punt'),('Les Carolines - Fira','Vicent Andrés Estellés'),('Alacant','Xàtiva'),('Bailén','Alacant')]
     
     rutas=[]
     
@@ -218,17 +218,20 @@ if coordenadas:
         camino = nx.shortest_path(grafo, origen, destino)
     except:
         camino=[]
-    if len(camino)>0:
-        dic={}
-        for index,row in datos.iterrows():
-            if row['Nom / Nombre'] in camino:
-                dic[row['Nom / Nombre']]=row['Línia / Línea'].split(',')
-        dic2={}
-        for parada in camino:
-            dic2[parada]=dic[parada]
+    
+    dic={}
+    for index,row in datos.iterrows():
+        dic[row['Nom / Nombre']]=row['Línia / Línea'].split(',')
+    dic2={}
+    for parada in dic.keys():
+        dic2[parada]=dic[parada]
+    dic2['Alacant'].append('A1')
+    dic2['Xàtiva'].append('A1')
+    dic2['Alacant'].append('A2')
+    dic2['Bailén'].append('A1')
+    
         
-        
-        
+    if len(camino)>0:   
         visitadas=[]
         def mas_lejos(parada):
             pos=camino.index(parada)
@@ -255,56 +258,90 @@ if coordenadas:
         
         
         st.write(f'BEST ROUTE FROM {origen.upper()} TO {destino.upper()}')
-        st.write('Number of stations:',len(camino))
-        a=len(transbordos)
-        if a>0:
-            parada=camino[0]
-            trayectos=[]
-            i=0
-            while a>0:
-                lineas=[]
-                sig=transbordos[i]
-                for linea in dic2[parada]:
-                    if linea in dic2[sig]:
-                        lineas.append(linea)
-                trayectos.append((parada,sig,lineas))
-                parada=sig
-                
-                a-=1
-                i+=1
-            lineas_ult=[]
-            transbordo_1=transbordos[-1]
-            ultima=camino[-1]
-            lineas_ult=[]
-            for l in dic2[transbordo_1]:
-                if l in dic2[ultima]:
-                    lineas_ult.append(l)
-            
-            for i in range(len(trayectos)+1):
-                try:
-                    l2=trayectos[i][2]
-                    lin=''
-                    for j in range(len(trayectos[i][2])):
-                        if j+1<len(trayectos[i][2]):
-                            lin+=f'{trayectos[i][2][j]}, '
-                        else: 
-                            lin+=f'{trayectos[i][2][j]}'
-                    st.write(f' {i+1}) From {trayectos[i][0]} to {transbordos[i]}, Line {lin}')
+        or_d=[]
+        for l in dic2[Origen]:
+            if l in dic2[Destino]:
+                or_d.append(l)
+        if len(or_d)==0:
+            st.write('Number of stations:',len(camino)-1)
+            a=len(transbordos)
+            if a>0:
+                parada=camino[0]
+                trayectos=[]
+                i=0
+                while a>0:
+                    lineas=[]
+                    sig=transbordos[i]
+                    for linea in dic2[parada]:
+                        if linea in dic2[sig]:
+                            lineas.append(linea)
+                    trayectos.append((parada,sig,lineas))
+                    parada=sig
                     
-                except: 
-                    pass
-            caden = ', '.join(lineas_ult)
-            st.write(f' { i+1}) From {transbordo_1} to {ultima}, Line {caden}')
+                    a-=1
+                    i+=1
+                lineas_ult=[]
+                transbordo_1=transbordos[-1]
+                ultima=camino[-1]
+                lineas_ult=[]
+                for l in dic2[transbordo_1]:
+                    if l in dic2[ultima]:
+                        lineas_ult.append(l)
+                
+                for i in range(len(trayectos)+1):
+                    try:
+                        l2=trayectos[i][2]
+                        lin=''
+                        for j in range(len(trayectos[i][2])):
+                            if j+1<len(trayectos[i][2]):
+                                lin+=f'{trayectos[i][2][j]}, '
+                            else: 
+                                lin+=f'{trayectos[i][2][j]}'
+                        if (trayectos[i][0]=='Xàtiva' and transbordos[i]=='Alacant') or (trayectos[i][0]=='Alacant' and transbordos[i]=='Xàtiva') :
+                            st.write(f' {i+1}) Walk from {trayectos[i][0]} to {transbordos[i]} (270 m)')
+                        elif (trayectos[i][0]=='Bailén' and transbordos[i]=='Alacant') or (trayectos[i][0]=='Alacant' and transbordos[i]=='Bailén') :
+                            st.write(f' {i+1}) Walk from {trayectos[i][0]} to {transbordos[i]} (180 m)')
+                        else:    
+                            st.write(f' {i+1}) From {trayectos[i][0]} to {transbordos[i]}, Line {lin}')
+                        
+                    except: 
+                        pass
+                caden = ', '.join(lineas_ult)
+                if ultima=='Alacant' and transbordo_1=='Xàtiva':
+                    st.write(f' { i+1}) Walk from {transbordo_1} to {ultima} (270 m) ')
+                elif ultima=='Xàtiva' and transbordo_1=='Alacant':
+                    st.write(f' { i+1}) Walk from {transbordo_1} to {ultima} (270 m) ')
+                elif ultima=='Alacant' and transbordo_1=='Bailén':
+                    st.write(f' { i+1}) Walk from {transbordo_1} to {ultima} (180 m) ')
+                elif ultima=='Bailén' and transbordo_1=='Alacant':
+                    st.write(f' { i+1}) Walk from {transbordo_1} to {ultima} (180 m) ')
+                
+                    
+                
+                else:
+                    st.write(f' { i+1}) From {transbordo_1} to {ultima}, Line {caden}')
+            else:
+                disp=[]
+                for i in dic2[Origen]:
+                    if i in dic2[Destino]:
+                        disp.append(i)
+                cadena = ', '.join(disp)
+                st.write(f'1) From {Origen} to {Destino} Line {cadena}')
         else:
-            disp=[]
-            for i in dic2[Origen]:
-                if i in dic2[Destino]:
-                    disp.append(i)
-            cadena = ', '.join(disp)
-            st.write(f'1) From {Origen} to {Destino} Line {cadena[0]}')
+            rut=[]
+            for ruta in rutas:
+                if Origen in ruta:
+                    if Destino in ruta:
+                        rut=ruta
+                        break
+            inic=ruta.index(Origen)
+            fini=ruta.index(Destino)
+            
+            cf=','.join(or_d)
+            st.write('Number of stations:',abs(inic-fini))
+            st.write(f' 1) From {Origen} to {Destino} Line {cf}')
     else:
         st.write(f"It is not possible to go from {Origen} to {Destino}.")
-    
     
     
     
