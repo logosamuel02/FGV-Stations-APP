@@ -341,7 +341,17 @@ if coordenadas:
             st.write(f' 1) From {Origen} to {Destino} Line {cf}')
     else:
         st.write(f"It is not possible to go from {Origen} to {Destino}.")
-    
+
+
+# ---- HIDE STREAMLIT STYLE ----
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
     
     
 else:
