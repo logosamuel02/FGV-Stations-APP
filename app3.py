@@ -341,6 +341,9 @@ if coordenadas:
             st.write(f' 1) From {Origen} to {Destino} Line {cf}')
     else:
         st.write(f"It is not possible to go from {Origen} to {Destino}.")
+    
+else:
+    st.write("No se encontraron coordenadas para la dirección específica")
 
 
 # ---- HIDE STREAMLIT STYLE ----
@@ -352,7 +355,3 @@ hide_st_style = """
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
-    
-    
-else:
-    st.write("No se encontraron coordenadas para la dirección específica")
